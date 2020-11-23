@@ -1,0 +1,28 @@
+#define NEAR 15 //cm
+#define THRESHOLD 40
+
+task main(){
+     SetSensorLowspeed(IN_4);
+     SetSensorColorFull(IN_3);
+     while(true) {
+          ClearScreen();
+          unsigned long t0 = CurrentTick();
+          SensorUS(IN_4);
+          unsigned long t1 = CurrentTick();
+          NumOut(33, 32, t1-t0);
+          Wait(500);
+     }
+     
+     while(true){
+                 ClearScreen();
+                 NumOut(50, 8, SensorUS(IN_4));
+                 unsigned int colors[] = {0, 0, 0,0,0};
+                 ReadSensorColorRaw(IN_3, colors);
+                 NumOut(0, 0, colors[0]);
+                 NumOut(33, 0, colors[1]);
+                 NumOut(66, 0, colors[2]);
+                 NumOut(0, 24, colors[3]);
+                 NumOut(80, 8, Sensor(IN_3));
+                 Wait(100);
+}
+}

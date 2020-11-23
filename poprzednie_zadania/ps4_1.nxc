@@ -1,0 +1,25 @@
+#define OK LDR_SUCCESS
+task main(){
+ byte fileHandle;
+ short fileSize;
+ short bytesWritten;
+ string read;
+ string write;
+ int i =0;
+ DeleteFile("Danny.txt");
+ DeleteFile("DannySays.txt");
+ CreateFile("Danny.txt", 512, fileHandle);
+ SetSensorLowspeed(IN_4);
+ ClearScreen();
+ for (i; i<20*10; i++)
+ {
+ PointOut(i%100,SensorUS(IN_4)%60);
+
+if(i==99)
+ClearScreen();
+
+Wait(50);
+ }
+ CloseFile(fileHandle);
+ RenameFile("Danny.txt","DannySays.txt");
+}

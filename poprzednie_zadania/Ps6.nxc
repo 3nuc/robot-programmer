@@ -1,0 +1,98 @@
+mutex moveMutex;
+
+int angle = 0;
+int threshold = 10;
+bool selected_distance = false;
+
+task driving(){
+     int distance = 0;
+     while(1){
+              if(ButtonPressed(BTNCENTER,false)){
+                                          selected_distance = true;
+                                          angle = distance * 205 / 10;
+                                          break;
+              }
+              if(ButtonPressed(BTNLEFT,false)){
+                                        distance -= 10;
+              }
+              if(ButtonPressed(BTNRIGHT,false)){
+                                         distance+=10;
+              }
+              TextOut(0,LCD_LINE1,"Dystans:" + NumToStr(distance));
+              Wait(100);
+              ClearScreen();
+     }
+     while(1){
+              Acquire(moveMutex);
+              OnFwd(OUT_AC,50);
+              Wait(10);
+              Release(moveMutex);
+              angle -= MotorTachoCount(OUT_A);
+              ResetTachoCount(OUT_AC);
+              if(angle <=0){
+                       break;
+              }
+     }
+     /*for(int i = 1; i <= distance/10; i++){
+             Acquire(moveMutex);
+             RotateMotor(OUT_AC,50,205);
+             Release(moveMutex);
+     }*/
+}
+
+task checkUltrasonic(){
+     byte sensor_val = 0;
+     while(1){
+              if(selected_distance){
+              sensor_val = SensorUS(IN_1);
+              TextOut(0,LCD_LINE2,"Ultrasonic:" + NumToStr(sensor_val));
+              TextOut(0,LCD_LINE3,"Angle:" + NumToStr(angle));
+              Wait(100);
+              ClearScreen();
+              int travelled = 0;
+              if(sensor_val <= threshold){
+                            Acquire(moveMutex);
+                            RotateMotor(OUT_C,50,45);
+                            RotateMotor(OUT_A,-50,45);
+                            //RotateMotorEx(OUT_AC,50,270,100,true,true);
+                            while(1){
+                                     travelled += 150;
+                                     RotateMotor(OUT_AC,50,150);
+                                     RotateMotor(OUT_C,50,45);
+                            RotateMotor(OUT_A,-50,45);
+                                     //RotateMotorEx(OUT_AC,50,-270,-100,true,true);
+                                     sensor_val = SensorUS(IN_1);
+                                     if(sensor_val <= threshold){
+                                     RotateMotor(OUT_C,50,45);
+                            RotateMotor(OUT_A,-50,45);
+                                     //RotateMotorEx(OUT_AC,50,270,100,true,true);
+                                     }
+                                     else{
+                                          break;
+                                     }
+                            }
+                            while(1){
+                                     angle -= 150;
+                                     RotateMotor(OUT_AC,50,150); RotateMotor(OUT_C,50,45);
+                            RotateMotor(OUT_A,-50,45);
+                                     //RotateMotorEx(OUT_AC,50,-270,-100,true,true);
+                                     sensor_val = SensorUS(IN_1);
+                                     if(sensor_val <= threshold){ RotateMotor(OUT_C,50,45);
+                            RotateMotor(OUT_A,-50,45);
+                                     //RotateMotorEx(OUT_AC,50,270,100,true,true);
+                                     }
+                                     else{
+                                          break;
+                                     }
+                            }
+                            Release(moveMutex);
+              }
+              }
+
+     }
+}
+
+task main(){
+     SetSensorUltrasonic(IN_1);
+     Precedes(checkUltrasonic,driving);
+}

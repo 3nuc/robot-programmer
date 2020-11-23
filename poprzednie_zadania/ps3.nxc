@@ -1,0 +1,18 @@
+#define POWER 100
+#define DEGREES 1440
+task main(){
+     ClearScreen();
+     ResetTachoCount(OUT_A);
+     ResetRotationCount(OUT_A);
+     
+     RotateMotor(OUT_A, POWER, DEGREES);
+     
+     long motorA = MotorTachoCount(OUT_A);
+     long rotateA = MotorRotationCount(OUT_A);
+     
+     NumOut(10,0,motorA);
+     NumOut(10,8,rotateA);
+     NumOut(0,24, DEGREES);
+     NumOut(0,32, POWER);
+     Wait(5000);
+}
