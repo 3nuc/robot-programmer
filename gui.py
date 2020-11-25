@@ -3,6 +3,8 @@ from tkinter.filedialog import asksaveasfilename
 import tkinter as tk
 from turtle import RawTurtle
 
+from nxc import NXCBuilder
+
 class MainApplication(tk.Frame):
     def __init__(self, parent, *args, **kwargs):
         tk.Frame.__init__(self, parent, *args, **kwargs)
@@ -22,6 +24,8 @@ class MainApplication(tk.Frame):
         
         self.create_widgets()
         self.connect_widgets()
+        
+        self.nxc = NXCBuilder(self.draw)
         
     def create_widgets(self):
         tk.Label(self.parent, text="Robot Driver Inc.", font = ('Arial' , 25)).grid(row = 0, column = 0, columnspan=6)
@@ -73,19 +77,27 @@ class MainApplication(tk.Frame):
         self.filepath_btn.bind('<Button-1>', lambda x: self.on_filepath_btn_pressed())
     
     def on_forward_btn_pressed(self):
-        self.draw.forward(10)
+        #self.draw.forward(10)
+        print("Fwd: Power:", self.power_var.get(), ", Wait time:", self.forward_wait_var.get())
+        self.nxc.add_forward_command(self.power_var.get(), self.forward_wait_var.get())
     
     def on_rotate_btn_pressed(self):
-        self.draw.right(45)
+        #self.draw.right(45)
+        print("Rotate: Degrees:", self.degrees_var.get())
+        self.nxc.add_rotate_command(self.degrees_var.get())
     
     def on_wait_btn_pressed(self):
+        #print("Wait:", self.wait_wait_var.get())
         print("Wait:", self.wait_wait_var.get())
+        self.nxc.add_wait_command(self.wait_wait_var.get())
     
     def on_generate_btn_pressed(self):
         print(self.filepath)
+        self.nxc.generate_code(self.filepath)
 
     def on_undo_btn_pressed(self):
         print("Undo")
+        self.nxc.undo_last_command()
     
     def on_filepath_btn_pressed(self):
         self.filepath = asksaveasfilename(initialdir=os.path.expanduser("~"),
